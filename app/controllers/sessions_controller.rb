@@ -2,16 +2,22 @@ class SessionsController < ApplicationController
 
   def create
     @user = User.find_by(username: params[:user][:username])
-
+    Rails.logger.debug "DEBUG: User found: #{@user.inspect}"
+    session = @user.sessions.create
+      Rails.logger.debug "DEBUG: Session created: #{session.inspect}"
+    
     if @user and @user.password == params[:user][:password]
+      session = @user.sessions.create
+      Rails.logger.debug "DEBUG: Session created: #{session.inspect}"
 
-      cookies.permanent.signed[:tweets_session_token] = {
+      cookies.permanent.signed[:twitter_session_token] = {
         value: session.token,
         httponly: true
       }
       render json: { success: true }
     else
-  else
+      
+      Rails.logger.debug "DEBUG: Authentication failed or user not found"
       render json: { success: false }, status: :unauthorized
     end
   end
